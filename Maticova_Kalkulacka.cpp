@@ -1,12 +1,6 @@
-﻿// Maticova_Kalkulacka.cpp: Definuje vstupní bod pro aplikaci.
-//
-
-#include "Maticova_Kalkulacka.h"
-
-using namespace std;
+﻿#include "Maticova_Kalkulacka.h"
 
 int main()
 {
-	cout << "Hello CMake." << endl;
 	return 0;
 }
