@@ -74,6 +74,53 @@ Matrix multiplyMatrices(Matrix A, Matrix B) {
     return result;
 }
 
+// Funkce pro výpočet inverzní matice
+Matrix inverseMatrix(Matrix A) {
+    if (A.rows != A.cols) {
+        printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
+        exit(1);
+    }
+
+    int n = A.rows;
+    Matrix result = createMatrix(n, n);
+
+    // Inicializace rozšířené matice (původní matice A + jednotková matice)
+    double augmentedMatrix[MAX_ROWS][2 * MAX_COLS];
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            augmentedMatrix[i][j] = A.data[i][j];
+            augmentedMatrix[i][j + n] = (i == j) ? 1.0 : 0.0; // Jednotková matice
+        }
+    }
+
+    // Gaussova eliminace - převod matice na horní trojúhelníkovou formu
+    for (int k = 0; k < n; k++) {
+        // Normalizace aktuálního řádku
+        double pivot = augmentedMatrix[k][k];
+        for (int j = 0; j < 2 * n; j++) {
+            augmentedMatrix[k][j] /= pivot;
+        }
+        // Eliminace všech násobků pivotu v ostatních řádcích
+        for (int i = 0; i < n; i++) {
+            if (i != k) {
+                double factor = augmentedMatrix[i][k];
+                for (int j = 0; j < 2 * n; j++) {
+                    augmentedMatrix[i][j] -= factor * augmentedMatrix[k][j];
+                }
+            }
+        }
+    }
+
+    // Extrahování inverzní matice z rozšířené matice
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            result.data[i][j] = augmentedMatrix[i][j + n];
+        }
+    }
+
+    return result;
+}
+
 // Funkce pro vstup matice od uzivatele
 void inputMatrix(Matrix* mat) {
     printf("Zadejte prvky matice:\n");
@@ -129,6 +176,16 @@ int main() {
     Matrix product = multiplyMatrices(matrixA, matrixB);
     printf("Nasobeni matic:\n");
     displayMatrix(product);
+
+    // Výpočet inverzní matice
+    if (m == n) {
+        Matrix invA = inverseMatrix(matrixA);
+        printf("Inverzni matice:\n");
+        displayMatrix(invA);
+    }
+    else {
+        printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
+    }
 
     return 0;
 }
