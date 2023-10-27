@@ -1,5 +1,4 @@
-﻿#include <stdio.h>
-#include <stdlib.h>
+﻿#include"Maticova_kalkulacka.h"
 
 #define MAX_ROWS 10
 #define MAX_COLS 10
