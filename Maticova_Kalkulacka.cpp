@@ -139,7 +139,174 @@ void displayMatrix(Matrix mat) {
         printf("\n");
     }
 }
+//------------------------------------------------------------------
+double calculateDet2x2(Matrix mat) {
+    //Sarusovo pravidlo
+    return mat.data[0][0] * mat.data[1][1] - mat.data[1][0] * mat.data[0][1];
+}
 
+double calculateDet3x3(Matrix mat) {
+    // a-0,0 b-0,1 c-0,2
+    // d-1,0 e-1,1 f-1,2
+    // g-2,0 h-2,1 i-2,2
+    return (mat.data[0][0] * mat.data[1][1] * mat.data[2][2]) +
+        (mat.data[1][0] * mat.data[2][1] * mat.data[0][2]) +
+        (mat.data[2][0] * mat.data[0][1] * mat.data[1][2]) -
+        (mat.data[2][0] * mat.data[1][1] * mat.data[0][2]) -
+        (mat.data[0][0] * mat.data[2][1] * mat.data[1][2]) -
+        (mat.data[1][0] * mat.data[0][1] * mat.data[2][2]);
+}
+
+
+int analizeMat(Matrix mat) {
+
+    int zeroCount = 0;
+    int bestRow = 0;
+    int bestRowIndex = 0;
+
+    int bestCol = 0;
+    int bestColIndex = 0;
+    //Analyze rows
+    for (size_t i = 0; i < mat.rows; i++)
+    {
+        for (size_t j = 0; j < mat.cols; j++)
+        {
+            if (mat.data[i][j] == 0) //TODO: better comparasion
+                zeroCount++;
+        }
+
+        if (zeroCount > bestRow){
+            bestRow = zeroCount;
+            bestRowIndex = i;
+        }
+
+        zeroCount = 0;
+    }
+    //Analyze cols
+    for (size_t i = 0; i < mat.cols; i++)
+    {
+        for (size_t j = 0; j < mat.rows; j++)
+        {
+            if (mat.data[j][i] == 0) //TODO: better comparasion
+                zeroCount++;
+        }
+
+        if (zeroCount > bestCol) {
+            bestCol = zeroCount;
+            bestColIndex = i;
+        }
+            
+
+        zeroCount = 0;
+    }
+    return bestCol > bestRow? bestColIndex : bestRowIndex + 10;
+}
+
+Matrix createMat3x3Shrink(Matrix mat, int col, int row) {
+    Matrix newMat;
+    newMat.cols = 3;
+    newMat.rows = 3;
+
+    size_t counterI = 0;
+    size_t counterJ = 0;
+
+    for (size_t i = 0; i < mat.rows; i++)
+    {
+        if (i == row)
+            continue;
+
+        for (size_t j = 0; j < mat.rows; j++)
+        {
+            if (j == col)
+                continue;
+            newMat.data[counterI][counterJ] = mat.data[i][j];
+
+            counterJ++;
+        }
+        counterJ = 0;
+        counterI++;
+    }
+    return newMat;
+}
+
+double calculateDet4x4Row(Matrix mat, int bestRow) {
+    double det = 0;
+    //printf("Kalkulace podle radku %d\n", bestRow);
+    for (size_t i = 0; i < mat.cols; i++)
+    {
+        if (mat.data[bestRow][i] == 0)
+            continue;
+
+        Matrix matx; matx.rows = 3; matx.cols = 3;
+        matx = createMat3x3Shrink(mat, i, bestRow);
+       /* displayMatrix(matx);
+        printf("\n\n");*/
+        det += pow(-1,bestRow + i) * mat.data[bestRow][i] * calculateDet3x3(matx);
+    }
+   
+    return det;
+}
+
+double calculateDet4x4Col(Matrix mat, int bestCol) {
+    double det = 0;
+    //printf("Kalkulace podle sloupce %d\n", bestCol);
+    for (size_t i = 0; i < mat.cols; i++)
+    {
+        if (mat.data[i][bestCol] == 0)
+            continue;
+
+        Matrix matx; matx.rows = 3; matx.cols = 3;
+        matx = createMat3x3Shrink(mat, bestCol, i);
+        /*displayMatrix(matx);
+        printf("\n\n");*/
+        det += pow(-1, bestCol + i) * mat.data[i][bestCol] * calculateDet3x3(matx);
+    }
+
+    return det;
+}
+
+
+double calculateDet4x4(Matrix mat) {
+
+    if (analizeMat(mat) > 9)
+        return calculateDet4x4Row(mat, analizeMat(mat) - 10);
+    else
+        return calculateDet4x4Col(mat, analizeMat(mat));
+}
+
+double calculateDeterminant(Matrix mat) {
+    if (mat.cols > 4 || mat.rows > 4)
+    {
+        printf("Matice je vetsi nez 4x4.\n");
+        exit(1);
+    }
+
+    if (mat.cols != mat.rows) {
+        printf("Matice neni ctvercova\n");
+        exit(1);
+    }
+
+    switch (mat.rows)
+    {
+    case 2:
+        return calculateDet2x2(mat);
+        break;
+
+    case 3:
+        return calculateDet3x3(mat);
+        break;
+
+    case 4:
+        return calculateDet4x4(mat);
+        break;
+
+    default:
+        printf("Begone\n");
+        exit(1);
+        break;
+    }
+}
+//---------------------------------------------------------------------
 int main() {
     int m, n;
 
@@ -157,6 +324,9 @@ int main() {
 
     printf("Prvni matice:\n");
     displayMatrix(matrixA);
+
+
+    printf("Determinat prvni matice = %lf", calculateDeterminant(matrixA));
 
     printf("Druha matice:\n");
     displayMatrix(matrixB);
