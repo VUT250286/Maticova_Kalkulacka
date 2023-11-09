@@ -267,36 +267,37 @@ int main() {
     scanf("%d %d", &m, &n);
 
     Matrix matrixA = createMatrix(m, n);
-   /* Matrix matrixB = createMatrix(m, n);*/
+    Matrix matrixB = createMatrix(m, n);
 
     printf("Zadejte prvni matici:\n");
     inputMatrix(&matrixA);
 
-    /*printf("Zadejte druhou matici:\n");
-    inputMatrix(&matrixB);*/
+    printf("Zadejte druhou matici:\n");
+    inputMatrix(&matrixB);
 
     printf("Prvni matice:\n");
     displayMatrix(matrixA);
 
 
-    printf("Determinat = %lf", calculateDeterminant(matrixA));
-    //printf("Druha matice:\n");
-    //displayMatrix(matrixB);
+    printf("Determinat prvni matice = %lf", calculateDeterminant(matrixA));
 
-    //// Scitani
-    //Matrix sum = addMatrices(matrixA, matrixB);
-    //printf("Soucet matic:\n");
-    //displayMatrix(sum);
+    printf("Druha matice:\n");
+    displayMatrix(matrixB);
 
-    //// Odcitani
-    //Matrix diff = subtractMatrices(matrixA, matrixB);
-    //printf("Rozdil matic:\n");
-    //displayMatrix(diff);
+    // Scitani
+    Matrix sum = addMatrices(matrixA, matrixB);
+    printf("Soucet matic:\n");
+    displayMatrix(sum);
 
-    //// Nasobeni
-    //Matrix product = multiplyMatrices(matrixA, matrixB);
-    //printf("Nasobeni matic:\n");
-    //displayMatrix(product);
+    // Odcitani
+    Matrix diff = subtractMatrices(matrixA, matrixB);
+    printf("Rozdil matic:\n");
+    displayMatrix(diff);
+
+    // Nasobeni
+    Matrix product = multiplyMatrices(matrixA, matrixB);
+    printf("Nasobeni matic:\n");
+    displayMatrix(product);
 
     return 0;
 }
