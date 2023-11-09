@@ -326,10 +326,11 @@ int main() {
     displayMatrix(matrixA);
 
 
-    printf("Determinat prvni matice = %lf", calculateDeterminant(matrixA));
-
     printf("Druha matice:\n");
     displayMatrix(matrixB);
+
+    //Determinant  
+    printf("Determinat prvni matice = %lf\n", calculateDeterminant(matrixA));
 
     // Scitani
     Matrix sum = addMatrices(matrixA, matrixB);
