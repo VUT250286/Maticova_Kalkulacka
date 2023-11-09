@@ -115,7 +115,10 @@ int analizeMat(Matrix mat) {
 
     int zeroCount = 0;
     int bestRow = 0;
+    int bestRowIndex = 0;
+
     int bestCol = 0;
+    int bestColIndex = 0;
     //Analyze rows
     for (size_t i = 0; i < mat.rows; i++)
     {
@@ -125,8 +128,10 @@ int analizeMat(Matrix mat) {
                 zeroCount++;
         }
 
-        if (zeroCount > bestRow)
+        if (zeroCount > bestRow){
             bestRow = zeroCount;
+            bestRowIndex = i;
+        }
 
         zeroCount = 0;
     }
@@ -139,24 +144,83 @@ int analizeMat(Matrix mat) {
                 zeroCount++;
         }
 
-        if (zeroCount > bestCol)
+        if (zeroCount > bestCol) {
             bestCol = zeroCount;
+            bestColIndex = i;
+        }
+            
 
         zeroCount = 0;
     }
-    return bestCol > bestRow? bestCol : bestRow + 10;
+    return bestCol > bestRow? bestColIndex : bestRowIndex + 10;
+}
+
+Matrix createMat3x3Shrink(Matrix mat, int col, int row) {
+    Matrix newMat;
+    newMat.cols = 3;
+    newMat.rows = 3;
+
+    size_t counterI = 0;
+    size_t counterJ = 0;
+
+    for (size_t i = 0; i < mat.rows; i++)
+    {
+        if (i == row)
+            continue;
+
+        for (size_t j = 0; j < mat.rows; j++)
+        {
+            if (j == col)
+                continue;
+            newMat.data[counterI][counterJ] = mat.data[i][j];
+
+            counterJ++;
+        }
+        counterJ = 0;
+        counterI++;
+    }
+    return newMat;
 }
 
 double calculateDet4x4Row(Matrix mat, int bestRow) {
+    double det = 0;
+    //printf("Kalkulace podle radku %d\n", bestRow);
+    for (size_t i = 0; i < mat.cols; i++)
+    {
+        if (mat.data[bestRow][i] == 0)
+            continue;
 
+        Matrix matx; matx.rows = 3; matx.cols = 3;
+        matx = createMat3x3Shrink(mat, i, bestRow);
+       /* displayMatrix(matx);
+        printf("\n\n");*/
+        det += pow(-1,bestRow + i) * mat.data[bestRow][i] * calculateDet3x3(matx);
+    }
+   
+    return det;
 }
 
 double calculateDet4x4Col(Matrix mat, int bestCol) {
+    double det = 0;
+    //printf("Kalkulace podle sloupce %d\n", bestCol);
+    for (size_t i = 0; i < mat.cols; i++)
+    {
+        if (mat.data[i][bestCol] == 0)
+            continue;
 
+        Matrix matx; matx.rows = 3; matx.cols = 3;
+        matx = createMat3x3Shrink(mat, bestCol, i);
+        /*displayMatrix(matx);
+        printf("\n\n");*/
+        det += pow(-1, bestCol + i) * mat.data[i][bestCol] * calculateDet3x3(matx);
+    }
+
+    return det;
 }
 
 
 double calculateDet4x4(Matrix mat) {
+
     if (analizeMat(mat) > 9)
         return calculateDet4x4Row(mat, analizeMat(mat) - 10);
     else
@@ -203,34 +267,36 @@ int main() {
     scanf("%d %d", &m, &n);
 
     Matrix matrixA = createMatrix(m, n);
-    Matrix matrixB = createMatrix(m, n);
+   /* Matrix matrixB = createMatrix(m, n);*/
 
     printf("Zadejte prvni matici:\n");
     inputMatrix(&matrixA);
 
-    printf("Zadejte druhou matici:\n");
-    inputMatrix(&matrixB);
+    /*printf("Zadejte druhou matici:\n");
+    inputMatrix(&matrixB);*/
 
     printf("Prvni matice:\n");
     displayMatrix(matrixA);
 
-    printf("Druha matice:\n");
-    displayMatrix(matrixB);
 
-    // Scitani
-    Matrix sum = addMatrices(matrixA, matrixB);
-    printf("Soucet matic:\n");
-    displayMatrix(sum);
+    printf("Determinat = %lf", calculateDeterminant(matrixA));
+    //printf("Druha matice:\n");
+    //displayMatrix(matrixB);
 
-    // Odcitani
-    Matrix diff = subtractMatrices(matrixA, matrixB);
-    printf("Rozdil matic:\n");
-    displayMatrix(diff);
+    //// Scitani
+    //Matrix sum = addMatrices(matrixA, matrixB);
+    //printf("Soucet matic:\n");
+    //displayMatrix(sum);
 
-    // Nasobeni
-    Matrix product = multiplyMatrices(matrixA, matrixB);
-    printf("Nasobeni matic:\n");
-    displayMatrix(product);
+    //// Odcitani
+    //Matrix diff = subtractMatrices(matrixA, matrixB);
+    //printf("Rozdil matic:\n");
+    //displayMatrix(diff);
+
+    //// Nasobeni
+    //Matrix product = multiplyMatrices(matrixA, matrixB);
+    //printf("Nasobeni matic:\n");
+    //displayMatrix(product);
 
     return 0;
 }
