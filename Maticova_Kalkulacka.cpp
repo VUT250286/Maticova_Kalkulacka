@@ -22,6 +22,18 @@ Matrix createMatrix(int rows, int cols) {
     return mat;
 }
 
+// Funkce pro výpočet transpozice matice
+void calculateTranspose(Matrix A, Matrix* transpose) {
+    int rows = A.rows;
+    int cols = A.cols;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            transpose->data[j][i] = A.data[i][j];
+        }
+    }
+}
+
 // Funkce pro scitani matic
 Matrix addMatrices(Matrix A, Matrix B) {
     if (A.rows != B.rows || A.cols != B.cols) {
@@ -356,6 +368,20 @@ int main() {
     else {
         printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
     }
+
+    // Výpočet transpozice
+    Matrix transposeA = createMatrix(n, m);
+
+    calculateTranspose(matrixA, &transposeA);
+
+    printf("Transpozice matice:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            printf("%f\t", transposeA.data[i][j]);
+        }
+        printf("\n");
+    }
+
 
     return 0;
 }
