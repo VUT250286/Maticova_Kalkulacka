@@ -22,6 +22,56 @@ Matrix createMatrix(int rows, int cols) {
     return mat;
 }
 
+
+// Funkce pro určení hodnosti matice
+int calculateRank(Matrix A) {
+    int rank = 0;
+    int lead = 0;  // Stupně redukce (echelon form)
+
+    while (lead < A.rows && lead < A.cols) {
+        // Nalezne první nenulový prvek ve sloupci pod vedením
+        int i = lead;
+        while (i < A.rows && A.data[i][lead] == 0.0) {
+            i++;
+        }
+
+        if (i == A.rows) {
+            // Pokud jsou všechny prvky ve sloupci pod vedením nula, přejdeme na další sloupec
+            lead++;
+        }
+        else {
+            // Jinak zvýšíme hodnost matice a provedeme eliminaci
+            rank++;
+            for (int j = 0; j < A.cols; j++) {
+                double temp = A.data[i][j];
+                A.data[i][j] = A.data[lead][j];
+                A.data[lead][j] = temp;
+            }
+
+            // Normalizujeme řádek pod vedením
+            double div = A.data[lead][lead];
+            for (int j = 0; j < A.cols; j++) {
+                A.data[lead][j] /= div;
+            }
+
+            // Eliminujeme prvky nad a pod vedením
+            for (int i = 0; i < A.rows; i++) {
+                if (i != lead) {
+                    double factor = A.data[i][lead];
+                    for (int j = 0; j < A.cols; j++) {
+                        A.data[i][j] -= factor * A.data[lead][j];
+                    }
+                }
+            }
+
+            // Přesuneme na další řádek
+            lead++;
+        }
+    }
+
+    return rank;
+}
+
 // Funkce pro výpočet transpozice matice
 void calculateTranspose(Matrix A, Matrix* transpose) {
     int rows = A.rows;
@@ -374,6 +424,7 @@ int main() {
 
     calculateTranspose(matrixA, &transposeA);
 
+
     printf("Transpozice matice:\n");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
@@ -382,6 +433,9 @@ int main() {
         printf("\n");
     }
 
+    // Hodnost matice
+    int rank = calculateRank(matrixA);
+    printf("Hodnost matice: %d\n", rank);
 
     return 0;
 }
