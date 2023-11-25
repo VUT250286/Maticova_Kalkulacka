@@ -369,73 +369,98 @@ double calculateDeterminant(Matrix mat) {
     }
 }
 //---------------------------------------------------------------------
-int main() {
-    int m, n;
-
-    printf("Zadejte rozmery maticy (radek sloupec): ");
-    scanf("%d %d", &m, &n);
-
-    Matrix matrixA = createMatrix(m, n);
-    Matrix matrixB = createMatrix(m, n);
-
-    printf("Zadejte prvni matici:\n");
-    inputMatrix(&matrixA);
-
-    printf("Zadejte druhou matici:\n");
-    inputMatrix(&matrixB);
-
-    printf("Prvni matice:\n");
-    displayMatrix(matrixA);
+#include<Windows.h>
+#include<conio.h>
 
 
-    printf("Druha matice:\n");
-    displayMatrix(matrixB);
 
-    //Determinant  
-    printf("Determinat prvni matice = %lf\n", calculateDeterminant(matrixA));
 
-    // Scitani
-    Matrix sum = addMatrices(matrixA, matrixB);
-    printf("Soucet matic:\n");
-    displayMatrix(sum);
+void printMainMenu(short selectedRow, const char* options[], int sizeOfOptions) {
+    system("cls");
+    for (size_t i = 0; i < sizeOfOptions; i++)
+    {
+        if (i == selectedRow % sizeOfOptions)
+            printf(">");
 
-    // Odcitani
-    Matrix diff = subtractMatrices(matrixA, matrixB);
-    printf("Rozdil matic:\n");
-    displayMatrix(diff);
-
-    // Nasobeni
-    Matrix product = multiplyMatrices(matrixA, matrixB);
-    printf("Nasobeni matic:\n");
-    displayMatrix(product);
-
-    // Výpočet inverzní matice
-    if (m == n) {
-        Matrix invA = inverseMatrix(matrixA);
-        printf("Inverzni matice:\n");
-        displayMatrix(invA);
+        printf("\t\t\t%s\n", options[i]);
     }
-    else {
-        printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
+}
+
+void startScreen() {
+    printf("___  ___      _   _                       _   __      _ _          _            _         \n");
+    printf("|  \\/  |     | | (_)                     | | / /     | | |        | |          | |        \n");
+    printf("| .  . | __ _| |_ _  ___ _____   ____ _  | |/ /  __ _| | | ___   _| | __ _  ___| | ____ _ \n");
+    printf("| |\\/| |/ _` | __| |/ __/ _ \\ \\ / / _` | |    \\ / _` | | |/ / | | | |/ _` |/ __| |/ / _` |\n");
+    printf("| |  | | (_| | |_| | (_| (_) \\ V / (_| | | |\\  \\ (_| | |   <| |_| | | (_| | (__|   < (_| |\n");
+    printf("\\_|  |_/\\__,_|\\__|_|\\___\\___/ \\_/ \\__,_| \\_| \\_/\\__,_|_|_|\\_\\\\__,_|_|\\__,_|\\___|_|\\_\\__,_|\n");
+    printf("\n\n");
+    printf("Naprogramovano Davidem Marholdem a Vitem Nemeckem\n\n");
+
+
+    printf("Zmackni libovolnou klavesu pro pokracovani...\n");
+    while (!_kbhit()) {
+    }
+    _getch();
+}
+
+int mainMenu(const char* options[], int sizeOfOptions) {
+    HANDLE hStdin;
+    INPUT_RECORD irInputRecord;
+    DWORD dwEventsRead;
+    hStdin = GetStdHandle(STD_INPUT_HANDLE);
+
+    if (hStdin == INVALID_HANDLE_VALUE) {
+        return -1;
     }
 
-    // Výpočet transpozice
-    Matrix transposeA = createMatrix(n, m);
+    int counter = 0;
+    int insideCounter = 0;
+    printMainMenu(counter, options, sizeOfOptions);
 
-    calculateTranspose(matrixA, &transposeA);
+    while (1) {
+        ReadConsoleInput(hStdin, &irInputRecord, 1, &dwEventsRead);
 
+        insideCounter = counter % 4;
+        if (insideCounter < 00)
+            insideCounter += 4;
 
-    printf("Transpozice matice:\n");
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            printf("%f\t", transposeA.data[i][j]);
+        if (irInputRecord.EventType == KEY_EVENT &&
+            irInputRecord.Event.KeyEvent.bKeyDown) {
+
+            switch (irInputRecord.Event.KeyEvent.wVirtualKeyCode) {
+            case VK_UP: //printf("Up arrow key pressed.\n");
+                counter--;
+                printMainMenu(counter, options, sizeOfOptions);
+
+                    break;
+            case VK_DOWN: //printf("Down arrow key pressed.\n");
+                counter++;
+                printMainMenu(counter, options, sizeOfOptions);
+
+                break;
+            case VK_RETURN:
+                //printf("%d was selected", insideCounter);
+                return insideCounter;
+                break;
+            default:
+                break;
+            }
         }
-        printf("\n");
     }
+}
 
-    // Hodnost matice
-    int rank = calculateRank(matrixA);
-    printf("Hodnost matice: %d\n", rank);
+
+//---------------------------------------------------------------------
+int main() {
+    startScreen();
+    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Navod" };
+    int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
+    
+    int selected = mainMenu(mainMenuOptions, sizeOfOptions);
+    if (selected == -1)
+        return 1; //Cant recover, put the program out of missery
+    printf("Byla zvolena moznost: %s", mainMenuOptions[selected]); //Debug print
+    
 
     return 0;
 }
