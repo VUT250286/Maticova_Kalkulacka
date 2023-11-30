@@ -623,7 +623,47 @@ mS:
 }
 
 
+int calculationMenu(Matrix* matA, Matrix* matB, const char* options[], int sizeOfOptions) {
+    HANDLE hStdin;
+    INPUT_RECORD irInputRecord;
+    DWORD dwEventsRead;
+    hStdin = GetStdHandle(STD_INPUT_HANDLE);
 
+    if (hStdin == INVALID_HANDLE_VALUE) {
+        return -1;
+    }
+
+    int counter = 0;
+    printMainMenu(counter, options, sizeOfOptions);
+    while (1) {
+        ReadConsoleInput(hStdin, &irInputRecord, 1, &dwEventsRead);
+
+        counter %= sizeOfOptions;
+        if (counter < 0)
+            counter += sizeOfOptions;
+
+        if (irInputRecord.EventType == KEY_EVENT &&
+            irInputRecord.Event.KeyEvent.bKeyDown) {
+
+            switch (irInputRecord.Event.KeyEvent.wVirtualKeyCode) {
+            case VK_UP:
+                counter--;
+                printMainMenu(counter, options, sizeOfOptions);
+                break;
+            case VK_DOWN:
+                counter++;
+                printMainMenu(counter, options, sizeOfOptions);
+
+                break;          
+            case VK_RETURN:
+                
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
 
 
 
@@ -632,7 +672,10 @@ int main() {
 
     //startScreen();
     const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Nacist matici z historie","Navod","Konec" };
+    const char* calculatorMenuOptions[] = { "Scitani matic","Odecitani matic","Nasobeni matice skalarem","Nasobeni matic","Transpozice Matice","Vypocet inverzni matice","Determinant matice","Urceni hodnosti matice","Zpet"};
+
     int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
+    int sizeOfCalculatorOptions = sizeof(calculatorMenuOptions) / sizeof(calculatorMenuOptions[0]);
     Matrix mat1; mat1.cols = 0; mat1.rows = 0;
     Matrix mat2; mat2.cols = 0; mat2.rows = 0;
 
@@ -652,6 +695,7 @@ int main() {
             return 1; //Cant recover, put the program out of missery
             break;
         case 0: //Calculator start
+            calculationMenu(&mat1,&mat2, calculatorMenuOptions, sizeOfCalculatorOptions);
             break;
         case 1: // Matrix A input
             matrixInput(&mat1);
