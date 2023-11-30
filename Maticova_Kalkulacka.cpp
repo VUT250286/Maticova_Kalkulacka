@@ -182,7 +182,7 @@ Matrix inverseMatrix(Matrix A) {
     return result;
 }
 
-// Funkce pro vstup matice od uzivatele
+/*// Funkce pro vstup matice od uzivatele
 void inputMatrix(Matrix* mat) {
     printf("Zadejte prvky matice:\n");
     for (int i = 0; i < mat->rows; i++) {
@@ -201,6 +201,7 @@ void displayMatrix(Matrix mat) {
         printf("\n");
     }
 }
+*/
 //------------------------------------------------------------------
 double calculateDet2x2(Matrix mat) {
     //Sarusovo pravidlo
@@ -372,14 +373,38 @@ double calculateDeterminant(Matrix mat) {
 #include<Windows.h>
 #include<conio.h>
 
+void waitTillPressed() {
+    while (!_kbhit()) {
+    }
+    _getch();
+}
 
-
+void tutorial() {
+    system("cls");
+    puts("Vitej u navodu k maticove kalkulace.");
+    puts("Pokud se ti povedlo dostat az sem, tak jsi urcite zjistil, ze se kalkulacka ovlada pomoci sipek a enteru.");
+    puts("V prubehu pouzivani bude takovychle menu hned nekolik.");
+    puts("Pro zacatek pouzivani nejprve musis zadat alespon jednu matici. Provedes to tim zpusobem, ze v menicku vyberes moznost pro danou matici.");
+    puts("Program te vyzve k zadani velikosti matice, kterou zadas ve formatu \"m n\", pricemz m je pocet radku a n je pocet sloupcu.");
+    puts("Po potvrzeni dimenzi enterem budes presunut k samotnemu zadavani hodnot. Pohyb po poli opet zajistuji sipky.");
+    puts("Kdyz najedes na pole do ktereho chcec zapsat hodnotu, zmacknes enter a budes vyzvan k zadani hodnotym kterou nasledne potvrdis enterem.");
+    puts("Az bude se svym vyberem hodnot spokojen, zmacnes mezernik pro ulozeni matice a budes presunut spet do hlavniho menu.\n\n");
+    puts("Dalsi moznosti zadani je nacist posledni vypoctenou matici z historie. Tuhle moznost opet najdes v hlavnim meny.");
+    while (!_kbhit()) {
+    }
+    _getch();
+}
 
 void printMainMenu(short selectedRow, const char* options[], int sizeOfOptions) {
     system("cls");
+    //printf("%d, size %d\n", selectedRow, sizeOfOptions);
+    int realNum = selectedRow % sizeOfOptions;
+    if (realNum < 0)
+        realNum += sizeOfOptions;
+
     for (size_t i = 0; i < sizeOfOptions; i++)
     {
-        if (i == selectedRow % sizeOfOptions)
+        if (i ==  realNum)
             printf(">");
 
         printf("\t\t\t%s\n", options[i]);
@@ -403,6 +428,7 @@ void startScreen() {
     _getch();
 }
 
+
 int mainMenu(const char* options[], int sizeOfOptions) {
     HANDLE hStdin;
     INPUT_RECORD irInputRecord;
@@ -420,9 +446,9 @@ int mainMenu(const char* options[], int sizeOfOptions) {
     while (1) {
         ReadConsoleInput(hStdin, &irInputRecord, 1, &dwEventsRead);
 
-        insideCounter = counter % 4;
-        if (insideCounter < 00)
-            insideCounter += 4;
+        insideCounter = counter % sizeOfOptions;
+        if (insideCounter < 0)
+            insideCounter += (sizeOfOptions);
 
         if (irInputRecord.EventType == KEY_EVENT &&
             irInputRecord.Event.KeyEvent.bKeyDown) {
@@ -432,7 +458,7 @@ int mainMenu(const char* options[], int sizeOfOptions) {
                 counter--;
                 printMainMenu(counter, options, sizeOfOptions);
 
-                    break;
+                break;
             case VK_DOWN: //printf("Down arrow key pressed.\n");
                 counter++;
                 printMainMenu(counter, options, sizeOfOptions);
@@ -448,18 +474,209 @@ int mainMenu(const char* options[], int sizeOfOptions) {
         }
     }
 }
+void fillMatrix(Matrix* m){
+    for (size_t i = 0; i < m->rows; i++)
+    {
+        for (size_t h = 0; h < m->cols; h++)
+        {
+            m->data[i][h] = 0;
+        }
+    }
+}
+
+void printMatrix(Matrix* m, int x, int y) {
+    x %= m->rows;
+    if (x < 0)
+        x += m->rows;
+
+    y %= m->cols;
+    if (y < 0)
+        y += m->cols;
+
+    system("cls");
+    printf("Zmackni mezernik pro ulozeni matice nebo enter pro zadani cisla\n");
+    for (size_t i = 0; i < m->rows; i++)
+    {
+        for (size_t h = 0; h < m->cols; h++)
+        {
+            if (i == x && h == y) {
+                printf("___\t");
+                continue;
+            }
+                    
+            printf("%0.2lf\t", m->data[i][h]);
+        }
+        printf("\n");
+    }
+}
+double scanNum() {
+    double x;
+    char c[10];
+    printf("Zadej cislo:");
+    if (scanf(" %lf",&x) !=1)
+    {
+        printf("Spatne zadane cislo, vracim nulu, zmackni libovolnou klavesu pro pokracovani\n");
+        scanf_s("%s", c, 10);
+        fflush(stdin);
+        waitTillPressed();
+        return 0;
+    }
+    return x;
+}
+int matrixSelection(Matrix * m) {
+    HANDLE hStdin;
+    INPUT_RECORD irInputRecord;
+    DWORD dwEventsRead;
+    hStdin = GetStdHandle(STD_INPUT_HANDLE);
+
+    if (hStdin == INVALID_HANDLE_VALUE) {
+        return -1;
+    }
+    int counterX = 0,counterY = 0;
+    printMatrix(m, counterX, counterY);
+
+    counterX %= m->rows;
+    if (counterX < 0)
+        counterX += m->rows;
+
+    counterY %= m->cols;
+    if (counterY < 0)
+        counterY += m->cols;
+
+    while (1) {
+        ReadConsoleInput(hStdin, &irInputRecord, 1, &dwEventsRead);
+
+        if (irInputRecord.EventType == KEY_EVENT &&
+            irInputRecord.Event.KeyEvent.bKeyDown) {
+
+            switch (irInputRecord.Event.KeyEvent.wVirtualKeyCode) {
+            case VK_UP: 
+                counterX--;
+                printMatrix(m, counterX, counterY);
+                break;
+            case VK_DOWN: 
+                counterX++;
+                printMatrix(m, counterX, counterY);
+
+                break;
+            case VK_RIGHT :
+                counterY++;
+                printMatrix(m, counterX, counterY);
+
+                break;
+            case VK_LEFT:
+                counterY--;
+                printMatrix(m, counterX, counterY);
+
+                break;
+            case VK_RETURN:
+                m->data[counterX][counterY] = scanNum();
+                printMatrix(m, counterX, counterY);
+                break;
+            case VK_SPACE:
+                return 0;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+int matrixInput(Matrix* m) { 
+
+    int needsFilling = (m->cols == 0 || m->rows == 0);
+
+    if (m->cols != 0 && m->rows != 0)
+    {
+        printf("Chceste zadat novou matici? y/n");
+        fflush(stdin);
+        char c;
+        scanf(" %c", &c);
+        if (c == 'n')
+        {
+            goto mS;
+        }
+        needsFilling = 1;
+       
+    }
+    
+    printf("Zadej velikost matice(maximalne 5x5) ve formatu m n: ");
+    if ((scanf(" %d %d", &m->rows, &m->cols) != 2)){
+        printf("Spatne zadane dimenze\n");
+        return 1;
+    }
+    if (m->rows <= 0 || m->cols <= 0 || m->rows > 5 || m->cols > 5 || (m->cols == 1 || m->rows == 1))
+    {
+        printf("Neplatna dimenze\n");
+        return 1;
+    }
+
+    if (needsFilling)
+        fillMatrix(m);
+mS:
+    matrixSelection(m);
+
+    while (!_kbhit()) {
+    }
+    _getch();
+
+}
+
+
+
+
 
 
 //---------------------------------------------------------------------
 int main() {
-    startScreen();
-    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Navod" };
+
+    //startScreen();
+    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Nacist matici z historie","Navod","Konec" };
     int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
+    Matrix mat1; mat1.cols = 0; mat1.rows = 0;
+    Matrix mat2; mat2.cols = 0; mat2.rows = 0;
+
+    while (true)
+    {
+        int selected = mainMenu(mainMenuOptions, sizeOfOptions);
+
+        if (selected == sizeOfOptions - 1) {
+            system("cls");
+            printf("Program ukoncen\n");
+            return 0;
+        }
+
+        switch (selected)
+        {
+        case -1: 
+            return 1; //Cant recover, put the program out of missery
+            break;
+        case 0: //Calculator start
+            break;
+        case 1: // Matrix A input
+            matrixInput(&mat1);
+            break;
+        case 2: // Matrix B input
+            matrixInput(&mat1);
+            break;
+        case 3: // Matrix input from history
+            //TODO
+            break;
+        case 4: // tutorial
+            tutorial();
+            break;
+        default: // ???
+            break;
+        }
+            
+        
+                
+
+
+        //printf("Byla zvolena moznost: %s", mainMenuOptions[selected]); //Debug print
+    }
     
-    int selected = mainMenu(mainMenuOptions, sizeOfOptions);
-    if (selected == -1)
-        return 1; //Cant recover, put the program out of missery
-    printf("Byla zvolena moznost: %s", mainMenuOptions[selected]); //Debug print
+    
     
 
     return 0;
