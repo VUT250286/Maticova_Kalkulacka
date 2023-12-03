@@ -85,10 +85,14 @@ void calculateTranspose(Matrix A, Matrix* transpose) {
 }
 
 // Funkce pro scitani matic
-Matrix addMatrices(Matrix A, Matrix B) {
+Matrix addMatrices(Matrix A, Matrix B, int * err) {
+    *err = 0;
+    
     if (A.rows != B.rows || A.cols != B.cols) {
-        printf("Nelze scitat matice ruznych rozmeru.\n");
-        exit(1);
+        //printf("Nelze scitat matice ruznych rozmeru.\n");
+        *err = 1;
+        Matrix dummy;
+        return dummy;
     }
 
     Matrix result = createMatrix(A.rows, A.cols);
@@ -101,10 +105,14 @@ Matrix addMatrices(Matrix A, Matrix B) {
 }
 
 // Funkce pro odicitani matic
-Matrix subtractMatrices(Matrix A, Matrix B) {
+Matrix subtractMatrices(Matrix A, Matrix B, int* err) {
+    *err = 0;
+
     if (A.rows != B.rows || A.cols != B.cols) {
-        printf("Nelze odicitat matice ruznych rozmeru.\n");
-        exit(1);
+        //printf("Nelze odicitat matice ruznych rozmeru.\n");
+        *err = 1;
+        Matrix dummy;
+        return dummy;
     }
 
     Matrix result = createMatrix(A.rows, A.cols);
@@ -117,10 +125,13 @@ Matrix subtractMatrices(Matrix A, Matrix B) {
 }
 
 // Funkce pro nasobeni matic
-Matrix multiplyMatrices(Matrix A, Matrix B) {
+Matrix multiplyMatrices(Matrix A, Matrix B, int * err) {
+    *err = 0;
     if (A.cols != B.rows) {
-        printf("Nelze nasobit matice s temi rozmeri.\n");
-        exit(1);
+        //printf("Nelze nasobit matice s temi rozmeri.\n");
+        *err = 1;
+        Matrix dummy;
+        return dummy;
     }
 
     Matrix result = createMatrix(A.rows, B.cols);
@@ -136,10 +147,14 @@ Matrix multiplyMatrices(Matrix A, Matrix B) {
 }
 
 // Funkce pro výpočet inverzní matice
-Matrix inverseMatrix(Matrix A) {
+Matrix inverseMatrix(Matrix A, int * err) {
+    *err = 0;
     if (A.rows != A.cols) {
-        printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
-        exit(1);
+        //printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
+        *err = 1;
+        Matrix dummy;
+        return dummy;
+        
     }
 
     int n = A.rows;
@@ -337,16 +352,19 @@ double calculateDet4x4(Matrix mat) {
         return calculateDet4x4Col(mat, analizeMat(mat));
 }
 
-double calculateDeterminant(Matrix mat) {
+double calculateDeterminant(Matrix mat, int *err) {
+    *err = 0;
     if (mat.cols > 4 || mat.rows > 4)
     {
-        printf("Matice je vetsi nez 4x4.\n");
-        exit(1);
+        //printf("Matice je vetsi nez 4x4.\n");
+        *err = 1;
+        return 0;
     }
 
     if (mat.cols != mat.rows) {
-        printf("Matice neni ctvercova\n");
-        exit(1);
+        //printf("Matice neni ctvercova\n");
+        *err = 2;
+        return 0;
     }
 
     switch (mat.rows)
@@ -372,7 +390,16 @@ double calculateDeterminant(Matrix mat) {
 //---------------------------------------------------------------------
 #include<Windows.h>
 #include<conio.h>
-
+void printRes(Matrix m) {
+    for (size_t i = 0; i < m.rows; i++)
+    {
+        for (size_t j = 0; j < m.cols; j++)
+        {
+            printf("%0.2lf ", m.data[i][j]);
+        }
+        printf("\n");
+    }
+}
 void waitTillPressed() {
     while (!_kbhit()) {
     }
@@ -397,7 +424,7 @@ void tutorial() {
 
 void printMainMenu(short selectedRow, const char* options[], int sizeOfOptions) {
     system("cls");
-    //printf("%d, size %d\n", selectedRow, sizeOfOptions);
+    printf("%d, size %d\n", selectedRow, sizeOfOptions);
     int realNum = selectedRow % sizeOfOptions;
     if (realNum < 0)
         realNum += sizeOfOptions;
@@ -623,6 +650,7 @@ mS:
 }
 
 
+
 int calculationMenu(Matrix* matA, Matrix* matB, const char* options[], int sizeOfOptions) {
     HANDLE hStdin;
     INPUT_RECORD irInputRecord;
@@ -656,7 +684,7 @@ int calculationMenu(Matrix* matA, Matrix* matB, const char* options[], int sizeO
 
                 break;          
             case VK_RETURN:
-                
+                return counter;
                 break;
             default:
                 break;
@@ -665,7 +693,110 @@ int calculationMenu(Matrix* matA, Matrix* matB, const char* options[], int sizeO
     }
 }
 
+int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int sizeOfOptions, Matrix* result) {
+    int res = calculationMenu(matA, matB, options, sizeOfOptions);
+    int err = 0;
+    if (res == sizeOfOptions - 1)
+        return 0;
 
+    switch (res)
+    {
+    case 0:
+        *result = addMatrices(*matA, *matB, &err);
+        if (err != 0)
+        {
+            err = 0;
+            printf("Nelze scicat ruzne velke matice, vracim se dohlavniho meny\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        printf("Matice uspesne sectena a ulozena do historie\n");
+        printRes(*result);
+        waitTillPressed();
+        return 0;
+        break;
+    case 1:
+        *result = subtractMatrices(*matA, *matB, &err);
+        if (err != 0)
+        {
+            err = 0;
+            printf("Nelze odcitat ruzne velke matice, vracim se dohlavniho meny\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        printf("Matice uspesne odectena a ulozena do historie\n");
+        printRes(*result);
+        waitTillPressed();
+        return 0;
+        break;
+    case 2:
+
+        break;
+
+    case3:
+        *result = multiplyMatrices(*matA, *matB, &err);
+        if (err != 0)
+        {
+            err = 0;
+            printf("Nelze nasobit , vracim se dohlavniho meny\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        printf("Matice uspesne vynasobena a ulozena do historie\n");
+        printRes(*result);
+        waitTillPressed();
+        return 0;
+        break;
+    case 4:
+        calculateTranspose(*matA, result);
+        printf("Matice uspesne transponovana a ulozena do historie\n");
+        printRes(*result);
+        waitTillPressed();
+        return 0;
+        break;
+    case 5:
+        *result = inverseMatrix(*matA, &err);
+        if (err != 0)
+        {
+            err = 0;
+            printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        printf("Inverzni natice uspesne vypocitana a ulozena do historie\n");
+        printRes(*result);
+        waitTillPressed();
+        return 0;
+        break;
+
+    case 6:
+        double det = calculateDeterminant(*matA,&err);
+        if (err == 1)
+        {
+            printf("Matice je vetsi nez 4x4\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        if (err == 2)
+        {
+            printf("Matice neni ctvercovat\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        printf("Determinant matice A je %0.2lf\n", det);
+        waitTillPressed();
+        return 0;
+        break;
+    case 7:
+        int hod = calculateRank(*matA);
+        printf("Hodnost matice A je %d\n", hod);
+        waitTillPressed();
+        return 0;
+        break;
+    default:
+        break;
+    }
+}
 
 //---------------------------------------------------------------------
 int main() {
@@ -676,8 +807,11 @@ int main() {
 
     int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
     int sizeOfCalculatorOptions = sizeof(calculatorMenuOptions) / sizeof(calculatorMenuOptions[0]);
-    Matrix mat1; mat1.cols = 0; mat1.rows = 0;
-    Matrix mat2; mat2.cols = 0; mat2.rows = 0;
+    Matrix mat1; mat1.rows = 0; mat1.cols = 0;
+    Matrix mat2; mat2.rows = 0; mat2.cols = 0;
+    Matrix res; res.rows = 0; res.cols = 0;
+
+
 
     while (true)
     {
@@ -695,13 +829,13 @@ int main() {
             return 1; //Cant recover, put the program out of missery
             break;
         case 0: //Calculator start
-            calculationMenu(&mat1,&mat2, calculatorMenuOptions, sizeOfCalculatorOptions);
+            calculationHandle(&mat1,&mat2, calculatorMenuOptions, sizeOfCalculatorOptions, &res);
             break;
         case 1: // Matrix A input
             matrixInput(&mat1);
             break;
         case 2: // Matrix B input
-            matrixInput(&mat1);
+            matrixInput(&mat2);
             break;
         case 3: // Matrix input from history
             //TODO
@@ -712,16 +846,12 @@ int main() {
         default: // ???
             break;
         }
-            
+        //TODO pokud je return z calculationhande 1 neukladat do histori vysledek  
         
                 
 
 
         //printf("Byla zvolena moznost: %s", mainMenuOptions[selected]); //Debug print
     }
-    
-    
-    
-
     return 0;
 }
