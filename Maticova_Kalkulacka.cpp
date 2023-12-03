@@ -352,6 +352,16 @@ double calculateDet4x4(Matrix mat) {
         return calculateDet4x4Col(mat, analizeMat(mat));
 }
 
+Matrix multiplyWithScalar(Matrix A, int Scalar) {
+    for (size_t i = 0; i < A.cols; i++)
+    {
+        for (size_t j = 0; j < A.rows; j++) {
+            A.data[i][j] *= Scalar;
+        }
+    }
+    return A;
+}
+
 double calculateDeterminant(Matrix mat, int *err) {
     *err = 0;
     if (mat.cols > 4 || mat.rows > 4)
@@ -730,7 +740,19 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
         return 0;
         break;
     case 2:
-
+        int scalar;
+        printf("Zdaje cislo pro nasobeni: ");
+        if (scanf( "%d",&scalar) != 1)
+        {
+            printf("Spatne zadane cislo\nZmackni libovolnou klavesu pro pokracovani...");
+            waitTillPressed();
+            return 1;
+        }
+        *result = multiplyWithScalar(*matA, scalar);
+        printf("Matice uspesne vynasobena skalarem a ulozena do historie\n");
+        printRes(*result);
+        waitTillPressed();
+        return 0;
         break;
 
     case3:
