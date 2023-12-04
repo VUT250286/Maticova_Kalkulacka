@@ -1,7 +1,7 @@
 ﻿#include"Maticova_kalkulacka.h"
 
-#define MAX_ROWS 10
-#define MAX_COLS 10
+#define MAX_ROWS 5
+#define MAX_COLS 5
 
 // Struktura pro reprezentaci matice
 typedef struct {
@@ -196,27 +196,6 @@ Matrix inverseMatrix(Matrix A, int * err) {
 
     return result;
 }
-
-/*// Funkce pro vstup matice od uzivatele
-void inputMatrix(Matrix* mat) {
-    printf("Zadejte prvky matice:\n");
-    for (int i = 0; i < mat->rows; i++) {
-        for (int j = 0; j < mat->cols; j++) {
-            scanf("%lf", &mat->data[i][j]);
-        }
-    }
-}
-
-// Funkce pro vystup matice
-void displayMatrix(Matrix mat) {
-    for (int i = 0; i < mat.rows; i++) {
-        for (int j = 0; j < mat.cols; j++) {
-            printf("%f\t", mat.data[i][j]);
-        }
-        printf("\n");
-    }
-}
-*/
 //------------------------------------------------------------------
 double calculateDet2x2(Matrix mat) {
     //Sarusovo pravidlo
@@ -434,7 +413,7 @@ void tutorial() {
 
 void printMainMenu(short selectedRow, const char* options[], int sizeOfOptions) {
     system("cls");
-    printf("%d, size %d\n", selectedRow, sizeOfOptions);
+    //printf("%d, size %d\n", selectedRow, sizeOfOptions);
     int realNum = selectedRow % sizeOfOptions;
     if (realNum < 0)
         realNum += sizeOfOptions;
@@ -832,20 +811,22 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
 int main() {
 
     //startScreen();
-    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Nacist matici z historie","Navod","Konec" };
+    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Zobrazit historii","Nacist matici z historie","Navod","Konec"};
     const char* calculatorMenuOptions[] = { "Scitani matic","Odecitani matic","Nasobeni matice skalarem","Nasobeni matic","Transpozice Matice","Vypocet inverzni matice","Determinant matice","Urceni hodnosti matice","Zpet"};
 
     int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
     int sizeOfCalculatorOptions = sizeof(calculatorMenuOptions) / sizeof(calculatorMenuOptions[0]);
+
     Matrix mat1; mat1.rows = 0; mat1.cols = 0;
     Matrix mat2; mat2.rows = 0; mat2.cols = 0;
     Matrix res; res.rows = 0; res.cols = 0;
 
 
-
+    int historyErr = 0;
     while (true)
     {
         int selected = mainMenu(mainMenuOptions, sizeOfOptions);
+        
 
         if (selected == sizeOfOptions - 1) {
             system("cls");
@@ -859,7 +840,7 @@ int main() {
             return 1; //Cant recover, put the program out of missery
             break;
         case 0: //Calculator start
-            calculationHandle(&mat1,&mat2, calculatorMenuOptions, sizeOfCalculatorOptions, &res);
+            historyErr = calculationHandle(&mat1,&mat2, calculatorMenuOptions, sizeOfCalculatorOptions, &res);
             break;
         case 1: // Matrix A input
             matrixInput(&mat1);
@@ -867,21 +848,20 @@ int main() {
         case 2: // Matrix B input
             matrixInput(&mat2);
             break;
-        case 3: // Matrix input from history
+        case 3:
+            break;
+        case 4: // Matrix input from history
             //TODO
             break;
-        case 4: // tutorial
+        case 5: // tutorial
             tutorial();
             break;
         default: // ???
+            return 1;
             break;
         }
+
         //TODO pokud je return z calculationhande 1 neukladat do histori vysledek  
-        
-                
-
-
-        //printf("Byla zvolena moznost: %s", mainMenuOptions[selected]); //Debug print
     }
     return 0;
 }
