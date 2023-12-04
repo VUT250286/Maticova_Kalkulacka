@@ -755,7 +755,7 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
         return 0;
         break;
 
-    case3:
+    case 3:
         *result = multiplyMatrices(*matA, *matB, &err);
         if (err != 0)
         {
@@ -776,6 +776,7 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
         waitTillPressed();
         return 0;
         break;
+
     case 5:
         *result = inverseMatrix(*matA, &err);
         if (err != 0)
@@ -792,7 +793,8 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
         break;
 
     case 6:
-        double det = calculateDeterminant(*matA,&err);
+        double det;
+        det = calculateDeterminant(*matA, &err);
         if (err == 1)
         {
             printf("Matice je vetsi nez 4x4\nZmackni libovolnou klavesu pro pokracovani...");
@@ -810,10 +812,16 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
         return 0;
         break;
     case 7:
-        int hod = calculateRank(*matA);
+        int hod;
+        hod = calculateRank(*matA);
         printf("Hodnost matice A je %d\n", hod);
         waitTillPressed();
         return 0;
+        break;
+
+    case -1:
+        printf("Fatální chyba ukončují program\n");
+        exit(1);
         break;
     default:
         break;
