@@ -10,17 +10,97 @@ typedef struct {
     double data[MAX_ROWS][MAX_COLS];
 } Matrix;
 
+void printRes(Matrix mat);
+
 // Funkce pro inicializaci matice
 Matrix createMatrix(int rows, int cols) {
-    if (rows <= 0 || rows > MAX_ROWS || cols <= 0 || cols > MAX_COLS) {
-        printf("Nespravne rozmery matice.\n");
-        exit(1);
-    }
+    
     Matrix mat;
     mat.rows = rows;
     mat.cols = cols;
     return mat;
 }
+
+//------------------------------------------------------------------ HISTORY ------------------------------------------------------
+
+void saveMatrixToFile(Matrix matrix) {
+    FILE* file = fopen("matice.txt", "w");
+
+    if (file == NULL) {
+        printf("Soubor nelze otevrit.\n");
+        return;
+    }
+
+    // Uložit rozměry matice do souboru
+    fprintf(file, "Rows: %d\n", matrix.rows);
+    fprintf(file, "Cols: %d\n", matrix.cols);
+
+    // Oddělovač mezi "Cols" a hodnotami matice
+    fprintf(file, "\n");
+
+    // Uložit data matice do souboru
+    for (int i = 0; i < matrix.rows; i++) {
+        for (int j = 0; j < matrix.cols; j++) {
+            fprintf(file, "%lf ", matrix.data[i][j]);
+        }
+        fprintf(file, "\n");
+    }
+
+    // Zavřít soubor
+    fclose(file);
+}
+
+void printMatrixFromFile() {
+    // Otevření souboru pro čtení
+    FILE* file = fopen("matice.txt", "r");
+    if (file == NULL) {
+        perror("Chyba pri otevirani souboru");
+    }
+
+    // Načtení počtu řádků a sloupců
+    Matrix mat;
+    fscanf(file, "Rows: %d\nCols: %d\n", &mat.rows, &mat.cols);
+
+    // Načtení dat matice
+    for (int i = 0; i < mat.rows; i++) {
+        for (int j = 0; j < mat.cols; j++) {
+            fscanf(file, "%lf", &mat.data[i][j]);
+        }
+    }
+
+    // Zavření souboru
+    fclose(file);
+
+    // Výpis matice
+    printf("Posledni matice vypoctena:\n");
+    printRes(mat);
+}
+
+void loadMatrixFromFile(Matrix* mat) {
+    // Otevření souboru pro čtení
+    FILE* file = fopen("matice.txt", "r");
+    if (file == NULL) {
+        perror("Chyba pri otevirani souboru");
+        return;
+    }
+
+    // Načtení počtu řádků a sloupců
+    fscanf(file, "Rows: %d\nCols: %d\n", &mat->rows, &mat->cols);
+
+    // Načtení dat matice
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            fscanf(file, "%lf", &mat->data[i][j]);
+        }
+    }
+
+    // Zavření souboru
+    fclose(file);
+
+    // Výpis, že načítání bylo úspěšné
+    printf("Data byla uspesne nactena ze souboru.\n");
+}
+//------------------------------------------------------------------------------------------------------------------------------
 
 
 // Funkce pro určení hodnosti matice
@@ -86,12 +166,12 @@ void calculateTranspose(Matrix A, Matrix* transpose) {
 
 // Funkce pro scitani matic
 Matrix addMatrices(Matrix A, Matrix B, int * err) {
+    Matrix dummy = createMatrix(0, 0);
     *err = 0;
     
     if (A.rows != B.rows || A.cols != B.cols) {
         //printf("Nelze scitat matice ruznych rozmeru.\n");
         *err = 1;
-        Matrix dummy;
         return dummy;
     }
 
@@ -106,12 +186,12 @@ Matrix addMatrices(Matrix A, Matrix B, int * err) {
 
 // Funkce pro odicitani matic
 Matrix subtractMatrices(Matrix A, Matrix B, int* err) {
+    Matrix dummy = createMatrix(0, 0);
     *err = 0;
 
     if (A.rows != B.rows || A.cols != B.cols) {
         //printf("Nelze odicitat matice ruznych rozmeru.\n");
         *err = 1;
-        Matrix dummy;
         return dummy;
     }
 
@@ -126,11 +206,11 @@ Matrix subtractMatrices(Matrix A, Matrix B, int* err) {
 
 // Funkce pro nasobeni matic
 Matrix multiplyMatrices(Matrix A, Matrix B, int * err) {
+    Matrix dummy = createMatrix(0, 0);
     *err = 0;
     if (A.cols != B.rows) {
         //printf("Nelze nasobit matice s temi rozmeri.\n");
         *err = 1;
-        Matrix dummy;
         return dummy;
     }
 
@@ -148,11 +228,11 @@ Matrix multiplyMatrices(Matrix A, Matrix B, int * err) {
 
 // Funkce pro výpočet inverzní matice
 Matrix inverseMatrix(Matrix A, int * err) {
+    Matrix dummy = createMatrix(0, 0);
     *err = 0;
     if (A.rows != A.cols) {
         //printf("Inverzni matice nelze vypocitat, protoze matice neni ctvercova.\n");
         *err = 1;
-        Matrix dummy;
         return dummy;
         
     }
@@ -618,12 +698,15 @@ int matrixInput(Matrix* m) {
     
     printf("Zadej velikost matice(maximalne 5x5) ve formatu m n: ");
     if ((scanf(" %d %d", &m->rows, &m->cols) != 2)){
-        printf("Spatne zadane dimenze\n");
+        printf("Spatne zadane dimenze.\n Zamackene libovolne tlacitko pro pokracovani.");
+        waitTillPressed();
         return 1;
     }
     if (m->rows <= 0 || m->cols <= 0 || m->rows > 5 || m->cols > 5 || (m->cols == 1 || m->rows == 1))
     {
         printf("Neplatna dimenze\n");
+        printf("Spatne zadane dimenze.\n Zamackene libovolne tlacitko pro pokracovani.");
+        waitTillPressed();
         return 1;
     }
 
@@ -807,11 +890,10 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
     }
 }
 
-//---------------------------------------------------------------------
 int main() {
 
     //startScreen();
-    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Zobrazit historii","Nacist matici z historie","Navod","Konec"};
+    const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Zobrazit historii","Nacist matici z historie [Matice A]","Nacist matici z historie [Matice B]","Navod","Konec"};
     const char* calculatorMenuOptions[] = { "Scitani matic","Odecitani matic","Nasobeni matice skalarem","Nasobeni matic","Transpozice Matice","Vypocet inverzni matice","Determinant matice","Urceni hodnosti matice","Zpet"};
 
     int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
@@ -837,7 +919,8 @@ int main() {
         switch (selected)
         {
         case -1: 
-            return 1; //Cant recover, put the program out of missery
+            printf("Program ukoncen.\n");
+            return 0;
             break;
         case 0: //Calculator start
             historyErr = calculationHandle(&mat1,&mat2, calculatorMenuOptions, sizeOfCalculatorOptions, &res);
@@ -848,20 +931,29 @@ int main() {
         case 2: // Matrix B input
             matrixInput(&mat2);
             break;
-        case 3:
+        case 3: // Zobrazit historii
+            printMatrixFromFile();
+            waitTillPressed();
             break;
-        case 4: // Matrix input from history
-            //TODO
+        case 4: // Nacist matici z historie
+            loadMatrixFromFile(&mat1);
+            waitTillPressed();
             break;
-        case 5: // tutorial
+        case 5: // Nacist matici z historie
+            loadMatrixFromFile(&mat2);
+            waitTillPressed();
+            break;
+        case 6: // tutorial
             tutorial();
             break;
-        default: // ???
+        default: 
             return 1;
             break;
         }
 
-        //TODO pokud je return z calculationhande 1 neukladat do histori vysledek  
+        if (historyErr != 1 || selected!=6 || selected != 7) {
+            saveMatrixToFile(res);
+        }
     }
     return 0;
 }
