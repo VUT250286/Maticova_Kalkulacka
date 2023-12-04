@@ -58,7 +58,7 @@ void printMatrixFromFile() {
     }
 
     // Načtení počtu řádků a sloupců
-    Matrix mat;
+    Matrix mat = createMatrix(0,0);
     fscanf(file, "Rows: %d\nCols: %d\n", &mat.rows, &mat.cols);
 
     // Načtení dat matice
@@ -469,6 +469,7 @@ void printRes(Matrix m) {
         printf("\n");
     }
 }
+
 void waitTillPressed() {
     while (!_kbhit()) {
     }
@@ -524,7 +525,6 @@ void startScreen() {
     _getch();
 }
 
-
 int mainMenu(const char* options[], int sizeOfOptions) {
     HANDLE hStdin;
     INPUT_RECORD irInputRecord;
@@ -570,6 +570,7 @@ int mainMenu(const char* options[], int sizeOfOptions) {
         }
     }
 }
+
 void fillMatrix(Matrix* m){
     for (size_t i = 0; i < m->rows; i++)
     {
@@ -591,6 +592,7 @@ void printMatrix(Matrix* m, int x, int y) {
 
     system("cls");
     printf("Zmackni mezernik pro ulozeni matice nebo enter pro zadani cisla\n");
+    printf("X: %d, Y: %d\n", x, y);
     for (size_t i = 0; i < m->rows; i++)
     {
         for (size_t h = 0; h < m->cols; h++)
@@ -605,6 +607,7 @@ void printMatrix(Matrix* m, int x, int y) {
         printf("\n");
     }
 }
+
 double scanNum() {
     double x;
     char c[10];
@@ -619,6 +622,7 @@ double scanNum() {
     }
     return x;
 }
+
 int matrixSelection(Matrix * m) {
     HANDLE hStdin;
     INPUT_RECORD irInputRecord;
@@ -640,6 +644,7 @@ int matrixSelection(Matrix * m) {
         counterY += m->cols;
 
     while (1) {
+        fflush(stdin);
         ReadConsoleInput(hStdin, &irInputRecord, 1, &dwEventsRead);
 
         if (irInputRecord.EventType == KEY_EVENT &&
@@ -666,7 +671,9 @@ int matrixSelection(Matrix * m) {
 
                 break;
             case VK_RETURN:
-                m->data[counterX][counterY] = scanNum();
+                double num;
+                num = scanNum();
+                m->data[counterX][counterY] = num;
                 printMatrix(m, counterX, counterY);
                 break;
             case VK_SPACE:
@@ -720,8 +727,6 @@ mS:
     _getch();
 
 }
-
-
 
 int calculationMenu(Matrix* matA, Matrix* matB, const char* options[], int sizeOfOptions) {
     HANDLE hStdin;
@@ -899,9 +904,11 @@ int main() {
     int sizeOfOptions = sizeof(mainMenuOptions) / sizeof(mainMenuOptions[0]);
     int sizeOfCalculatorOptions = sizeof(calculatorMenuOptions) / sizeof(calculatorMenuOptions[0]);
 
-    Matrix mat1; mat1.rows = 0; mat1.cols = 0;
-    Matrix mat2; mat2.rows = 0; mat2.cols = 0;
-    Matrix res; res.rows = 0; res.cols = 0;
+    Matrix mat1 = createMatrix(0, 0);
+    Matrix mat2 = createMatrix(0, 0);
+
+    Matrix res = createMatrix(0, 0);
+
 
 
     int historyErr = 0;
@@ -951,7 +958,7 @@ int main() {
             break;
         }
 
-        if (historyErr != 1 || selected!=6 || selected != 7 || selected != 8) {
+        if (historyErr != 1 && selected==0) {
             saveMatrixToFile(res);
         }
     }
