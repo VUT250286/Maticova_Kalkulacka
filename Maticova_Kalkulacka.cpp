@@ -848,7 +848,7 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
             waitTillPressed();
             return 1;
         }
-        printf("Inverzni natice uspesne vypocitana a ulozena do historie\n");
+        printf("Inverzni matice uspesne vypocitana a ulozena do historie\n");
         printRes(*result);
         waitTillPressed();
         return 0;
@@ -892,7 +892,7 @@ int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int siz
 
 int main() {
 
-    //startScreen();
+    startScreen();
     const char* mainMenuOptions[] = { "Kalkulacka","Matice A","Matice B","Zobrazit historii","Nacist matici z historie [Matice A]","Nacist matici z historie [Matice B]","Navod","Konec"};
     const char* calculatorMenuOptions[] = { "Scitani matic","Odecitani matic","Nasobeni matice skalarem","Nasobeni matic","Transpozice Matice","Vypocet inverzni matice","Determinant matice","Urceni hodnosti matice","Zpet"};
 
