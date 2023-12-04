@@ -951,7 +951,7 @@ int main() {
             break;
         }
 
-        if (historyErr != 1 || selected!=6 || selected != 7) {
+        if (historyErr != 1 || selected!=6 || selected != 7 || selected != 8) {
             saveMatrixToFile(res);
         }
     }
