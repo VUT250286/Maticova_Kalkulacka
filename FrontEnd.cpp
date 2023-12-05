@@ -316,14 +316,27 @@ int calculationMenu(Matrix* matA, Matrix* matB, const char* options[], int sizeO
 }
 
 int calculationHandle(Matrix* matA, Matrix* matB, const char* options[], int sizeOfOptions, Matrix* result) {
+    if ((matA->cols != 0 && matA->rows != 0) && (matB->cols == 0 || matB->rows == 0)) {
+        printf("Zadana pouze matice A, nelze provadet vypocty se 2 maticemi\nZmackni cokoliv pro pokracovani...\n");
+        waitTillPressed();
+        goto clc;
+    }
 
-    if (matA->cols == 0 || matA->rows == 0 || matB->cols == 0 || matB->rows == 0)
-    {
-        printf("Jedna z matic je prazdna\nZmackni ckookliv pro navrat do meny...\n");
+    if ((matA->cols == 0 && matA->rows == 0) && (matB->cols != 0 || matB->rows != 0)) {
+        printf("Zadana pouze matice B, vypocty s jednou matici jde  porovadet pouze s matici A\nVracim do meny\nZmackni cokoliv pro pokracovani...\n");
         waitTillPressed();
         return 1;
     }
+    
+    if ((matA->cols == 0 || matA->rows == 0) && (matB->cols == 0 || matB->rows == 0))
+    {
+        printf("Jedna z matic je prazdna\nZmackni cokokliv pro navrat do meny...\n");
+        waitTillPressed();
+        return 1;
+    }
+    
 
+clc:
     int res = calculationMenu(matA, matB, options, sizeOfOptions);
     int err = 0;
     if (res == sizeOfOptions - 1)
