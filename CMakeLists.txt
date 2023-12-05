@@ -12,7 +12,7 @@ endif()
 project ("Maticova_Kalkulacka")
 
 # Přidejte zdrojový kód ke spustitelnému souboru tohoto projektu.
-add_executable (Maticova_Kalkulacka "Maticova_Kalkulacka.cpp" "Maticova_Kalkulacka.h")
+add_executable (Maticova_Kalkulacka "Maticova_Kalkulacka.cpp" "Maticova_Kalkulacka.h" "MatrixCalc.cpp" "MatrixCalc.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Maticova_Kalkulacka PROPERTY CXX_STANDARD 20)
