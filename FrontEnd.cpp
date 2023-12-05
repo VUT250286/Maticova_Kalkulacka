@@ -27,10 +27,14 @@ void tutorial() {
     puts("Po potvrzeni dimenzi enterem budes presunut k samotnemu zadavani hodnot. Pohyb po poli opet zajistuji sipky.");
     puts("Kdyz najedes na pole do ktereho chcec zapsat hodnotu, zmacknes enter a budes vyzvan k zadani hodnotym kterou nasledne potvrdis enterem.");
     puts("Az bude se svym vyberem hodnot spokojen, zmacnes mezernik pro ulozeni matice a budes presunut spet do hlavniho menu.\n\n");
-    puts("Dalsi moznosti zadani je nacist posledni vypoctenou matici z historie. Tuhle moznost opet najdes v hlavnim meny.");
-    while (!_kbhit()) {
-    }
-    _getch();
+    puts("Dalsi zpusob  zadani je nacist posledni vypoctenou matici z historie. Tuhle moznost opet najdes v hlavnim meny.");
+    puts("Po te co budeš mit zadané matice, zvol možnost kalkulaèka.");
+    puts("V tomhle meny budeš mit moznost na výber z mnoha operaci.");
+    puts("Pokud bude vysledek matice, zobrazi se a ulozz se do historie.");
+    puts("Pokud bude vysledek jen cislo (napr. u determinantu), pouze se zobrazi.\n\n");
+    puts("Zmackni cokoliv pro navrat do meny...");
+
+    waitTillPressed();
 }
 
 void printMainMenu(short selectedRow, const char* options[], int sizeOfOptions) {
