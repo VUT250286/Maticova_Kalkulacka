@@ -63,6 +63,9 @@ void calculateTranspose(Matrix A, Matrix* transpose) {
     int rows = A.rows;
     int cols = A.cols;
 
+    transpose->rows = cols;
+    transpose->cols = rows;
+
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             transpose->data[j][i] = A.data[i][j];

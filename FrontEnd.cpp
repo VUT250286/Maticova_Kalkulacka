@@ -137,7 +137,7 @@ void printMatrix(Matrix* m, int x, int y) {
 
     system("cls");
     printf("Zmackni mezernik pro ulozeni matice nebo enter pro zadani cisla\n");
-    printf("X: %d, Y: %d\n", x, y);
+   // printf("X: %d, Y: %d\n", x, y);
     for (size_t i = 0; i < m->rows; i++)
     {
         for (size_t h = 0; h < m->cols; h++)
